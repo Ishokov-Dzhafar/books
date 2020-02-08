@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import '../utils.dart';
+import '../repositories/profile/profile_repository.dart';
 
 import 'vm_base.dart';
 
@@ -10,7 +11,12 @@ class PasscodeVM extends VMBase<PasscodeEvent> {
 
   Stream<PasscodeUIData> get passcode => _passcode;
 
+  Observable<void> _successCreatePasscode;
+
+  Stream<void> get successCreatePasscode => _successCreatePasscode;
+
   PasscodeUIData _uiData;
+  var _profileRepository = ProfileRepository();
 
   PasscodeVM() {
     _uiData = PasscodeUIData();
@@ -47,10 +53,17 @@ class PasscodeVM extends VMBase<PasscodeEvent> {
         }
       }
       return _uiData;
-    });
+    }).asBroadcastStream();
 
-    _passcode =
-        Observable.merge([numberPressed, initPasscodeData]);
+    _passcode = Observable.merge([numberPressed, initPasscodeData]);
+
+    _successCreatePasscode = numberPressed
+        .where((_) =>
+            (_uiData.passcode.length == _uiData.repeatPasscode.length &&
+                _uiData.passcode == _uiData.repeatPasscode))
+        .asyncMap((_) async {
+      await _profileRepository.savePasscode(_uiData.passcode);
+    });
 
     sink.add(InitEvent());
   }

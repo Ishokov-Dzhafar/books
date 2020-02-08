@@ -18,6 +18,11 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
   void initState() {
     super.initState();
     _viewModel = PasscodeVM();
+
+    _viewModel.successCreatePasscode.listen((_) {
+      //TODO navigate to books screen
+      print('Create passcode successeded');
+    });
   }
 
   @override
@@ -30,7 +35,6 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
               var uiData = snapshot.data;
               return Container(
                 alignment: Alignment.bottomCenter,
-                //padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -50,7 +54,6 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                     ),
                     NumericKeyboard(
                       onPressedBtn: (symbol) {
-                        print('PRESSED $symbol');
                         _viewModel.sink.add(NumberPressedEvent(symbol));
                       },
                       symbols: uiData.keyboardSymbols,
