@@ -33,11 +33,13 @@ class PasscodeVM extends VMBase<PasscodeEvent> {
         .map((event) => event as NumberPressedEvent)
         .map((event) {
       if (event.symbol == KeyboardSymbol.delete) {
-        _uiData.repeatPasscode.isNotEmpty
-            ? _uiData.repeatPasscode = _uiData.repeatPasscode
-                .substring(0, _uiData.repeatPasscode.length - 1)
-            : _uiData.passcode =
-                _uiData.passcode.substring(0, _uiData.passcode.length - 1);
+        if (_uiData.repeatPasscode.isNotEmpty) {
+          _uiData.repeatPasscode = _uiData.repeatPasscode
+              .substring(0, _uiData.repeatPasscode.length - 1);
+        } else if (_uiData.passcode.isNotEmpty) {
+          _uiData.passcode =
+              _uiData.passcode.substring(0, _uiData.passcode.length - 1);
+        }
       } else if (event.symbol != KeyboardSymbol.empty) {
         String symbolStr = mapKeyboarSymbol(event.symbol);
         if (_uiData.passcode.length != _uiData.totalSizeOfPasscode) {
@@ -58,9 +60,9 @@ class PasscodeVM extends VMBase<PasscodeEvent> {
     _passcode = Observable.merge([numberPressed, initPasscodeData]);
 
     _successCreatePasscode = numberPressed
-        .where((_) =>
-            (_uiData.passcode.length == _uiData.repeatPasscode.length &&
-                _uiData.passcode == _uiData.repeatPasscode))
+        .where((_) => (_uiData.passcode.length == _uiData.totalSizeOfPasscode &&
+            _uiData.passcode.length == _uiData.repeatPasscode.length &&
+            _uiData.passcode == _uiData.repeatPasscode))
         .asyncMap((_) async {
       await _profileRepository.savePasscode(_uiData.passcode);
     });
