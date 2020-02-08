@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         backgroundColor: Colors.black,
         primarySwatch: Colors.blue,
-        highlightColor: Colors.black.withOpacity(0.1),
+        highlightColor: Colors.blue.withOpacity(0.1),
         textTheme: TextTheme(
           subtitle: TextStyle(color: Colors.black, fontSize: 18.0),
           overline: TextStyle(color: Colors.black),
