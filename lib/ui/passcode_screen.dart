@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'components/numeric_keyboard.dart';
 import 'components/passcode_indicator.dart';
-import '../view_model/passcode_vm.dart';
+import '../blocs/passcode_bloc.dart';
 
 class PasscodeScreen extends StatefulWidget {
   ///Route name for Navigator
@@ -12,14 +12,14 @@ class PasscodeScreen extends StatefulWidget {
 }
 
 class _PasscodeScreenState extends State<PasscodeScreen> {
-  PasscodeVM _viewModel;
+  PasscodeBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = PasscodeVM();
+    _bloc = PasscodeBloc();
 
-    _viewModel.successCreatePasscode.listen((_) {
+    _bloc.successCreatePasscode.listen((_) {
       //TODO navigate to books screen
       print('Create passcode successeded');
     });
@@ -29,7 +29,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<PasscodeUIData>(
-          stream: _viewModel.passcode,
+          stream: _bloc.passcode,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               var uiData = snapshot.data;
@@ -54,7 +54,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                     ),
                     NumericKeyboard(
                       onPressedBtn: (symbol) {
-                        _viewModel.sink.add(NumberPressedEvent(symbol));
+                        _bloc.sink.add(NumberPressedEvent(symbol));
                       },
                       symbols: uiData.keyboardSymbols,
                     ),

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 
 ///Abstract class for Base View Model
-abstract class VMBase<T> {
+abstract class BlocBase<T> {
   final _controller = BehaviorSubject<T>();
 
   StreamSink<T> get sink => _controller.sink;

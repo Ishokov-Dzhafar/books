@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:core';
-import '../../view_model/passcode_vm.dart' show KeyboardSymbol;
+import '../../blocs/passcode_bloc.dart' show KeyboardSymbol;
 import '../../utils.dart';
 
 ///Numeric keyboard for passcode screen

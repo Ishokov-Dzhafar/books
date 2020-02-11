@@ -1,7 +1,7 @@
-import 'profile.dart';
+import 'passcode.dart';
 import '../../data/storage/storage_provider.dart';
 
-class ProfileRepository implements Profile {
+class PasscodeRepository implements Passcode {
 
   var _storage = StorageProvider().storage;
 

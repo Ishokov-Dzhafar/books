@@ -1,4 +1,4 @@
-import 'view_model/passcode_vm.dart' show KeyboardSymbol;
+import 'blocs/passcode_bloc.dart' show KeyboardSymbol;
 
 String mapKeyboarSymbol(KeyboardSymbol symbol) {
   switch (symbol) {

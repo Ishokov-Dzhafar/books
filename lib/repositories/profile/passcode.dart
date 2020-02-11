@@ -1,4 +1,4 @@
 
-class Profile {
+class Passcode {
   Future savePasscode(String passcode) {}
 }

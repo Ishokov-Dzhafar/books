@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import '../utils.dart';
-import '../repositories/profile/profile_repository.dart';
+import '../repositories/profile/passcode_repository.dart';
 
-import 'vm_base.dart';
+import 'bloc_base.dart';
 
 ///ViewModel for PassCodeScreen
-class PasscodeVM extends VMBase<PasscodeEvent> {
+class PasscodeBloc extends BlocBase<PasscodeEvent> {
   Observable<PasscodeUIData> _passcode;
 
   Stream<PasscodeUIData> get passcode => _passcode;
@@ -16,9 +16,9 @@ class PasscodeVM extends VMBase<PasscodeEvent> {
   Stream<void> get successCreatePasscode => _successCreatePasscode;
 
   PasscodeUIData _uiData;
-  var _profileRepository = ProfileRepository();
+  var _profileRepository = PasscodeRepository();
 
-  PasscodeVM() {
+  PasscodeBloc() {
     _uiData = PasscodeUIData();
 
     var initPasscodeData = events
