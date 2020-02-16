@@ -19,9 +19,12 @@ class NumericKeyboard extends StatefulWidget {
 class _NumericKeyboardState extends State<NumericKeyboard> {
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).orientation == Orientation.portrait
+        ? MediaQuery.of(context).size.width*(4/5)
+        : MediaQuery.of(context).size.height*(4/5);
     return Container(
       //height: MediaQuery.of(context).size.height*(3/5),
-      width: MediaQuery.of(context).size.width*(4/5),
+      width: width,
       margin: EdgeInsets.all(16.0),
       child: GridView.count(
         childAspectRatio: 1.5,
@@ -60,7 +63,7 @@ class KeyboardItemWidget extends StatelessWidget {
     } else {
       String textSymbol = mapKeyboarSymbol(symbol);
       return Text(textSymbol, textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.button.copyWith(fontSize: 30.0),
+        style: Theme.of(context).textTheme.button.copyWith(fontSize: 30.0, color: Theme.of(context).primaryColor),
       );
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'components/numeric_keyboard.dart';
 import 'components/passcode_indicator.dart';
 import '../blocs/passcode_bloc.dart';
+import 'books_catalog_screen.dart';
 
 class PasscodeScreen extends StatefulWidget {
   ///Route name for Navigator
@@ -20,8 +21,8 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
     _bloc = PasscodeBloc();
 
     _bloc.successCreatePasscode.listen((_) {
-      //TODO navigate to books screen
-      print('Create passcode successeded');
+      ///Navigate to Books Catalog and remove backstack pages
+      Navigator.of(context).pushNamedAndRemoveUntil(BooksCatalogScreen.routeName, (_) => false);
     });
   }
 
@@ -33,34 +34,71 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               var uiData = snapshot.data;
-              return Container(
-                alignment: Alignment.bottomCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+              if(MediaQuery.of(context).orientation == Orientation.portrait) {
+                return Container(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        child: _createIndicatorWithText(
+                            'Задайте пароль быстрого доступа',
+                            uiData.totalSizeOfPasscode,
+                            uiData.passcode.length,
+                            uiData.getFilledColor(context)),
+                      ),
+                      Container(
+                        child: _createIndicatorWithText(
+                            'Повторите пароль быстрого доступа',
+                            uiData.totalSizeOfPasscode,
+                            uiData.repeatPasscode.length,
+                            uiData.getFilledColor(context)),
+                      ),
+                      NumericKeyboard(
+                        onPressedBtn: (symbol) {
+                          _bloc.sink.add(NumberPressedEvent(symbol));
+                        },
+                        symbols: uiData.keyboardSymbols,
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(
-                      child: _createIndicatorWithText(
-                          'Задайте пароль быстрого доступа',
-                          uiData.totalSizeOfPasscode,
-                          uiData.passcode.length,
-                          uiData.getFilledColor(context)),
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: _createIndicatorWithText(
+                              'Задайте пароль быстрого доступа',
+                              uiData.totalSizeOfPasscode,
+                              uiData.passcode.length,
+                              uiData.getFilledColor(context)),
+                        ),
+                        Container(
+                          child: _createIndicatorWithText(
+                              'Повторите пароль быстрого доступа',
+                              uiData.totalSizeOfPasscode,
+                              uiData.repeatPasscode.length,
+                              uiData.getFilledColor(context)),
+                        ),
+                      ],
                     ),
-                    Container(
-                      child: _createIndicatorWithText(
-                          'Повторите пароль быстрого доступа',
-                          uiData.totalSizeOfPasscode,
-                          uiData.repeatPasscode.length,
-                          uiData.getFilledColor(context)),
-                    ),
-                    NumericKeyboard(
-                      onPressedBtn: (symbol) {
-                        _bloc.sink.add(NumberPressedEvent(symbol));
-                      },
-                      symbols: uiData.keyboardSymbols,
+                    Align(
+                      alignment: Alignment.center,
+                      child: NumericKeyboard(
+                        onPressedBtn: (symbol) {
+                          _bloc.sink.add(NumberPressedEvent(symbol));
+                        },
+                        symbols: uiData.keyboardSymbols,
+                      ),
                     ),
                   ],
-                ),
-              );
+                );
+              }
             } else {
               return CircularProgressIndicator();
             }
