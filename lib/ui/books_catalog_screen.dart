@@ -86,15 +86,13 @@ class MaterialPullToRef extends StatefulWidget {
 }
 
 class _MaterialPullToRefState extends State<MaterialPullToRef> {
-  final _key = GlobalKey<RefreshIndicatorState>();
+  GlobalKey<RefreshIndicatorState> _key;
 
   @override
   void initState() {
     super.initState();
 
-    widget._bloc.uiDataObservable.listen((data) {
-      if(data.isLoadingBooks) _key.currentState.show();
-    });
+
   }
 
   @override
@@ -102,13 +100,18 @@ class _MaterialPullToRefState extends State<MaterialPullToRef> {
     return StreamBuilder<BooksCatalogUIData>(
       stream: widget._bloc.uiDataObservable,
       builder: (context, snapshot) {
+        _key = GlobalKey<RefreshIndicatorState>();
+        widget._bloc.uiDataObservable.listen((data) {
+          print('IsLoading ${data.isLoadingBooks}');
+          if(data.isLoadingBooks) _key.currentState.show();
+        });
         return Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.center,
           child: RefreshIndicator(
             key: _key,
             onRefresh: () async {
-              if(!snapshot.hasData || snapshot.data.isLoadingBooks == false)  {
+              if(!snapshot.hasData || !snapshot.data.isLoadingBooks)  {
                 widget._bloc.sink.add(RefreshEvent());
               }
               await widget._bloc.uiDataObservable.firstWhere((data) => !data.isLoadingBooks);

@@ -25,18 +25,23 @@ class BooksCatalogBloc extends BlocBase<BooksEvent> {
     var initObservable = events.where((event) => event is InitEvent)
         .asyncMap((_) async => await _booksRepository.fetchBooks())
         .asBroadcastStream();
-
-    var search = events
+    var searchEvents = events
         .where((event) => event is SearchEvent)
         .map((event) => event as SearchEvent)
+        .asBroadcastStream();
+    var search = searchEvents
         .asyncMap((event) async {
           _uiData.search = event.search;
           _uiData.books = await _booksRepository.searchBook(event.search);
+          _uiData.isLoadingBooks = false;
           return _uiData;
     });
 
-    var refresh = events
-        .where((event) => event is RefreshEvent)
+    var refreshEvents = events
+        .where((event) => event is RefreshEvent && !_uiData.isLoadingBooks)
+        .asBroadcastStream();
+
+    var refresh = refreshEvents
         .asyncMap((_) async {
           print('REEEEFFFFFFFFREEEESH');
           return await _booksRepository.fetchBooks();
@@ -52,7 +57,8 @@ class BooksCatalogBloc extends BlocBase<BooksEvent> {
         _uiData.isLoadingBooks = false;
         return _uiData;
       }),
-      events.where((event) => event is RefreshEvent).map((_) {
+      refreshEvents.map((_) {
+        print('REFRESH');
         _uiData.isLoadingBooks = true;
         return _uiData;
       }),
@@ -60,14 +66,11 @@ class BooksCatalogBloc extends BlocBase<BooksEvent> {
         _uiData.isLoadingBooks = false;
         return _uiData;
       }),
-      events.where((event) => event is SearchEvent).map((_) {
+      searchEvents.map((_) {
         _uiData.isLoadingBooks = true;
         return _uiData;
       }),
-      search.map((_) {
-        _uiData.isLoadingBooks = false;
-        return _uiData;
-      }),
+      search,
     ]);
 
     _uiDataObservable = Observable.merge([
