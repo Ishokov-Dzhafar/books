@@ -72,6 +72,13 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+    _bloc.dispose();
+  }
+
 }
 
 
@@ -88,12 +95,6 @@ class MaterialPullToRef extends StatefulWidget {
 class _MaterialPullToRefState extends State<MaterialPullToRef> {
   GlobalKey<RefreshIndicatorState> _key;
 
-  @override
-  void initState() {
-    super.initState();
-
-
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,28 +152,19 @@ class _CupertinoListState extends State<CupertinoList> {
   ScrollController _listController = ScrollController();
 
   @override
-  void initState() {
-    super.initState();
-    /*widget._bloc.showProgressIndicator.listen((_) {
-      if(_controller.hasClients) {
-        _controller.jumpTo(-100.0);
-      }
-    });*/
-    Observable(widget._bloc.uiDataObservable
-        .where((data) => data.isLoadingBooks))
-        .debounceTime(Duration(seconds: 500))
-        .listen((_) {
-          if(_controller.hasClients) {
-            _controller.jumpTo(-100.0);
-          }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return StreamBuilder<BooksCatalogUIData>(
       stream: widget._bloc.uiDataObservable,
       builder: (context, snapshot) {
+
+        widget._bloc.uiDataObservable
+            .where((data) => data.isLoadingBooks).listen((_) {
+          if(_controller.hasClients) {
+            _controller.jumpTo(-100.0);
+          }
+        });
+
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: CustomScrollView(
@@ -207,30 +199,6 @@ class _CupertinoListState extends State<CupertinoList> {
                          ),
                        ),
               ),
-              /*SliverSafeArea(
-                //top: false,
-                sliver: widget(
-                  child: Column(
-                    children: [
-
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                var book = snapshot.data.books[index];
-                            return BookItem(
-                              title: book.title,
-                              description: book.description,
-                              imageUrl: book.preview,
-                              price: book.price,
-                            );
-                          },
-                          childCount: snapshot.hasData && snapshot.data.books != null ? snapshot.data.books.length : 0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),*/
             ],
           ),
         );
