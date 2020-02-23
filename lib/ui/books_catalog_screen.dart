@@ -1,27 +1,30 @@
 import 'dart:io';
 
-import 'package:books/data/rest_api/rest_api_provider.dart';
-import 'package:books/repositories/books/books_repository.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import '../localization_strings.dart' as local;
 import 'package:flutter/cupertino.dart' as cupertino;
-import 'package:rxdart/rxdart.dart';
+import 'package:flutter/material.dart';
+
 import '../blocs/books_catalog_bloc.dart';
+import '../data/rest_api/rest_api_provider.dart';
+import '../localization_strings.dart' as local;
+import '../repositories/books/books_repository.dart';
 import 'book_detailed_screen.dart';
 
 class BooksCatalogScreen extends StatefulWidget {
   ///Route name for Navigator
   static const String routeName = '/booksCatalogScreen';
 
-  BooksCatalogScreen();
+  BooksCatalogBloc _bloc;
+
+  //TODO не хватило времени на подбор инструмента для DI, но я бы попробовал https://github.com/google/inject.dart
+  BooksCatalogScreen() {
+    _bloc = BooksCatalogBloc(BooksRepository(RestApiProvider().restApi));
+  }
 
   @override
   _BooksCatalogScreenState createState() => _BooksCatalogScreenState();
 }
 
 class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
-  BooksCatalogBloc _bloc;
   final _key = GlobalKey<ScaffoldState>();
 
   final _controller = TextEditingController();
@@ -32,14 +35,12 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
   @override
   void initState() {
     super.initState();
-    //TODO не хватило времени выбрать библиотеку для реализации DI
-    _bloc = BooksCatalogBloc(BooksRepository(RestApiProvider().restApi));
 
     _controller.addListener(() {
-      _bloc.sink.add(SearchEvent(_controller.text));
+      widget._bloc.sink.add(SearchEvent(_controller.text));
     });
 
-    _bloc.errors.listen((errorMessage) {
+    widget._bloc.errors.listen((errorMessage) {
       final snackBar = SnackBar(content: Text(errorMessage));
       _key.currentState.showSnackBar(snackBar);
     });
@@ -57,7 +58,7 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
         ),
       ),
       body:
-          Platform.isAndroid ? MaterialPullToRef(_bloc) : CupertinoList(_bloc),
+          Platform.isAndroid ? MaterialPullToRef(widget._bloc) : CupertinoList(widget._bloc),
     );
   }
 
@@ -82,7 +83,7 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
   void dispose() {
     super.dispose();
     _controller.dispose();
-    _bloc.dispose();
+    widget._bloc.dispose();
   }
 }
 

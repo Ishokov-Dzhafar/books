@@ -1,10 +1,11 @@
-import 'package:books/data/storage/storage_provider.dart';
-import 'package:books/repositories/profile/passcode_repository.dart';
 import 'package:flutter/material.dart';
+
+import '../blocs/passcode_bloc.dart';
+import '../data/storage/storage_provider.dart';
+import '../repositories/profile/passcode_repository.dart';
+import 'books_catalog_screen.dart';
 import 'components/numeric_keyboard.dart';
 import 'components/passcode_indicator.dart';
-import '../blocs/passcode_bloc.dart';
-import 'books_catalog_screen.dart';
 
 class PasscodeScreen extends StatefulWidget {
   ///Route name for Navigator

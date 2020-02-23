@@ -1,6 +1,7 @@
-import 'package:books/app_config.dart';
-import 'package:books/data/rest_api/rest_api.dart';
 import 'package:dio/dio.dart';
+
+import '../../app_config.dart';
+import 'rest_api.dart';
 
 class DioRestApi implements RestApi {
 

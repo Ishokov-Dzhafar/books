@@ -1,5 +1,5 @@
-import '../result.dart';
 import '../../data/rest_api/responses/book_res.dart';
+import '../result.dart';
 
 class Books {
   Future<BooksResult> fetchBooks() {}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
 import '../blocs/book_detailed_bloc.dart';
 import '../localization_strings.dart' as local;
 
@@ -19,7 +20,6 @@ class BookDetailedScreen extends StatefulWidget {
 }
 
 class _BookDetailedScreenState extends State<BookDetailedScreen> {
-  final _key = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -56,17 +56,12 @@ class _BookDetailedScreenState extends State<BookDetailedScreen> {
           ),
         );
       });
-
-
-      /*final snackBar = SnackBar(content: Text(local.ru['success_buying']));
-      _key.currentState.showSnackBar(snackBar);*/
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _key,
       body: StreamBuilder<BookDetailedUIData>(
         stream: widget._bloc.uiData,
         builder: (context, snapshot) {
@@ -85,6 +80,12 @@ class _BookDetailedScreenState extends State<BookDetailedScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget._bloc.dispose();
+  }
 }
 
 class BookArgument {
@@ -99,6 +100,24 @@ class BookArgument {
       : assert(price != null),
         assert(description != null),
         assert(imageUrl != null);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is BookArgument &&
+              runtimeType == other.runtimeType &&
+              price == other.price &&
+              description == other.description &&
+              imageUrl == other.imageUrl;
+
+  @override
+  int get hashCode =>
+      price.hashCode ^
+      description.hashCode ^
+      imageUrl.hashCode;
+
+
+
 }
 
 class BookDetailedPortrait extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'ui/passcode_screen.dart';
+
+import 'ui/book_detailed_screen.dart';
 import 'ui/books_catalog_screen.dart';
 import 'ui/passcode_screen.dart';
-import 'ui/book_detailed_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -53,7 +53,6 @@ class MyApp extends StatelessWidget {
         BookDetailedScreen.routeName: (context) => BookDetailedScreen(),
       },
 
-      //home: BooksCatalogScreen(),
       home: PasscodeScreen(),
     );
   }

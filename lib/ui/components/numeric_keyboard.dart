@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:core';
+
+import 'package:flutter/material.dart';
+
 import '../../blocs/passcode_bloc.dart' show KeyboardSymbol;
 import '../../utils.dart';
 
@@ -23,7 +25,6 @@ class _NumericKeyboardState extends State<NumericKeyboard> {
         ? MediaQuery.of(context).size.width*(4/5)
         : MediaQuery.of(context).size.height*(4/5);
     return Container(
-      //height: MediaQuery.of(context).size.height*(3/5),
       width: width,
       margin: EdgeInsets.all(16.0),
       child: GridView.count(

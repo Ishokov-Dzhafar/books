@@ -1,6 +1,7 @@
-import 'storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../../app_config.dart' as config;
+import 'storage.dart';
 
 class SecureStorage implements Storage {
   FlutterSecureStorage _secureStorage;

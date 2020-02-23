@@ -1,7 +1,7 @@
-import 'books.dart';
-import '../../data/rest_api/rest_api.dart';
 import '../../data/rest_api/responses/book_res.dart';
+import '../../data/rest_api/rest_api.dart';
 import '../../localization_strings.dart' as local;
+import 'books.dart';
 
 class BooksRepository implements Books {
 
