@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
-import '../utils.dart';
-import '../repositories/profile/passcode_repository.dart';
 
+import '../repositories/profile/passcode_repository.dart';
+import '../utils.dart';
 import 'bloc_base.dart';
 
 ///ViewModel for PassCodeScreen

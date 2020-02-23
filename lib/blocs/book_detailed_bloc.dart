@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'bloc_base.dart';
-import 'package:rxdart/rxdart.dart';
 
 class BookDetailedBloc extends BlocBase<BookDetailedEvent> {
 
