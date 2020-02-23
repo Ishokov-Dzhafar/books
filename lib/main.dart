@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'ui/book_detailed_screen.dart';
+import 'ui/books_catalog_screen.dart';
 import 'ui/passcode_screen.dart';
 
 void main() => runApp(MyApp());
@@ -18,10 +21,9 @@ class MyApp extends StatelessWidget {
           overline: TextStyle(color: Colors.black),
           body1: TextStyle(color: Colors.black),
           body2: TextStyle(color: Colors.black),
-          button: TextStyle(color: Colors.blue,
-            letterSpacing: 1.5,
+          button: TextStyle(color: Colors.white,
             fontWeight: FontWeight.normal,
-            fontSize: 20.0,
+            fontSize: 16.0,
           ),
           caption: TextStyle(color: Colors.black),
           display1: TextStyle(color: Colors.black),
@@ -38,7 +40,18 @@ class MyApp extends StatelessWidget {
               fontWeight: FontWeight.normal
           ),
         ),
+        buttonTheme: ButtonThemeData(
+          buttonColor: Colors.blue,
+          highlightColor: Colors.blue.withOpacity(0.1),
+          disabledColor: Colors.blueGrey,
+          textTheme: ButtonTextTheme.primary
+        ),
       ),
+
+      routes: {
+        BooksCatalogScreen.routeName: (context) => BooksCatalogScreen(),
+        BookDetailedScreen.routeName: (context) => BookDetailedScreen(),
+      },
 
       home: PasscodeScreen(),
     );

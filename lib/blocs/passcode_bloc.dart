@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
-import '../utils.dart';
-import '../repositories/profile/passcode_repository.dart';
 
+import '../repositories/profile/passcode_repository.dart';
+import '../utils.dart';
 import 'bloc_base.dart';
 
 ///ViewModel for PassCodeScreen
@@ -16,9 +16,9 @@ class PasscodeBloc extends BlocBase<PasscodeEvent> {
   Stream<void> get successCreatePasscode => _successCreatePasscode;
 
   PasscodeUIData _uiData;
-  var _profileRepository = PasscodeRepository();
+  PasscodeRepository _profileRepository;
 
-  PasscodeBloc() {
+  PasscodeBloc(this._profileRepository) {
     _uiData = PasscodeUIData();
 
     var initPasscodeData = events
