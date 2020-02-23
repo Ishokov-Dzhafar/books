@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:books/data/rest_api/rest_api_provider.dart';
 import 'package:books/repositories/books/books_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import '../localization_strings.dart' as local;
 import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:rxdart/rxdart.dart';
 import '../blocs/books_catalog_bloc.dart';
-
+import 'book_detailed_screen.dart';
 
 class BooksCatalogScreen extends StatefulWidget {
   ///Route name for Navigator
@@ -21,12 +22,12 @@ class BooksCatalogScreen extends StatefulWidget {
 
 class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
   BooksCatalogBloc _bloc;
+  final _key = GlobalKey<ScaffoldState>();
 
   final _controller = TextEditingController();
 
   Icon _searchIcon = Icon(Icons.search);
   Widget _appBarTitle = Text(local.ru['books_catalog']);
-
 
   @override
   void initState() {
@@ -37,11 +38,17 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
     _controller.addListener(() {
       _bloc.sink.add(SearchEvent(_controller.text));
     });
+
+    _bloc.errors.listen((errorMessage) {
+      final snackBar = SnackBar(content: Text(errorMessage));
+      _key.currentState.showSnackBar(snackBar);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _key,
       appBar: AppBar(
         title: _appBarTitle,
         leading: IconButton(
@@ -49,7 +56,8 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
           onPressed: _searchPressed,
         ),
       ),
-        body: Platform.isAndroid ? MaterialPullToRef(_bloc) : CupertinoList(_bloc),
+      body:
+          Platform.isAndroid ? MaterialPullToRef(_bloc) : CupertinoList(_bloc),
     );
   }
 
@@ -60,9 +68,7 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
         this._appBarTitle = TextField(
           controller: _controller,
           decoration: new InputDecoration(
-              prefixIcon: new Icon(Icons.search),
-              hintText: 'Search...'
-          ),
+              prefixIcon: new Icon(Icons.search), hintText: 'Search...'),
         );
       } else {
         this._searchIcon = Icon(Icons.search);
@@ -78,12 +84,9 @@ class _BooksCatalogScreenState extends State<BooksCatalogScreen> {
     _controller.dispose();
     _bloc.dispose();
   }
-
 }
 
-
 class MaterialPullToRef extends StatefulWidget {
-
   final BooksCatalogBloc _bloc;
 
   MaterialPullToRef(this._bloc);
@@ -95,49 +98,49 @@ class MaterialPullToRef extends StatefulWidget {
 class _MaterialPullToRefState extends State<MaterialPullToRef> {
   GlobalKey<RefreshIndicatorState> _key;
 
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<BooksCatalogUIData>(
-      stream: widget._bloc.uiDataObservable,
-      builder: (context, snapshot) {
-        _key = GlobalKey<RefreshIndicatorState>();
-        widget._bloc.uiDataObservable.listen((data) {
-          print('IsLoading ${data.isLoadingBooks}');
-          if(data.isLoadingBooks) _key.currentState.show();
-        });
-        return Container(
-          padding: const EdgeInsets.all(8.0),
-          alignment: Alignment.center,
-          child: RefreshIndicator(
-            key: _key,
-            onRefresh: () async {
-              if(!snapshot.hasData || !snapshot.data.isLoadingBooks)  {
-                widget._bloc.sink.add(RefreshEvent());
-              }
-              await widget._bloc.uiDataObservable.firstWhere((data) => !data.isLoadingBooks);
-            },
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                var book = snapshot.data.books[index];
-                return BookItem(
-                  title: book.title,
-                  description: book.description,
-                  imageUrl: book.preview,
-                  price: book.price,
-                );
+        stream: widget._bloc.uiDataObservable,
+        builder: (context, snapshot) {
+          _key = GlobalKey<RefreshIndicatorState>();
+          widget._bloc.uiDataObservable.listen((data) {
+            print('IsLoading ${data.isLoadingBooks}');
+            if (data.isLoadingBooks) _key.currentState.show();
+          });
+          return Container(
+            padding: const EdgeInsets.all(8.0),
+            alignment: Alignment.center,
+            child: RefreshIndicator(
+              key: _key,
+              onRefresh: () async {
+                if (!snapshot.hasData || !snapshot.data.isLoadingBooks) {
+                  widget._bloc.sink.add(RefreshEvent());
+                }
+                await widget._bloc.uiDataObservable
+                    .firstWhere((data) => !data.isLoadingBooks);
               },
-              itemCount: snapshot.hasData && snapshot.data.books != null ? snapshot.data.books.length : 0,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  var book = snapshot.data.books[index];
+                  return BookItem(
+                    title: book.title,
+                    description: book.description,
+                    imageUrl: book.preview,
+                    price: book.price,
+                  );
+                },
+                itemCount: snapshot.hasData && snapshot.data.books != null
+                    ? snapshot.data.books.length
+                    : 0,
+              ),
             ),
-          ),
-        );
-      }
-    );
+          );
+        });
   }
 }
 
 class CupertinoList extends StatefulWidget {
-
   final BooksCatalogBloc _bloc;
 
   CupertinoList(this._bloc);
@@ -147,63 +150,59 @@ class CupertinoList extends StatefulWidget {
 }
 
 class _CupertinoListState extends State<CupertinoList> {
-
   ScrollController _controller = ScrollController();
   ScrollController _listController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<BooksCatalogUIData>(
-      stream: widget._bloc.uiDataObservable,
-      builder: (context, snapshot) {
+        stream: widget._bloc.uiDataObservable,
+        builder: (context, snapshot) {
+          widget._bloc.uiDataObservable
+              .where((data) => data.isLoadingBooks)
+              .listen((_) {
+            if (_controller.hasClients) {
+              _controller.jumpTo(-100.0);
+            }
+          });
 
-        widget._bloc.uiDataObservable
-            .where((data) => data.isLoadingBooks).listen((_) {
-          if(_controller.hasClients) {
-            _controller.jumpTo(-100.0);
-          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: CustomScrollView(
+              controller: _controller,
+              physics: BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics()),
+              slivers: [
+                cupertino.CupertinoSliverRefreshControl(
+                  onRefresh: () async {
+                    await widget._bloc.uiDataObservable
+                        .firstWhere((data) => !data.isLoadingBooks);
+                  },
+                ),
+                SliverSafeArea(
+                  top: false,
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        var book = snapshot.data.books[index];
+                        return BookItem(
+                          title: book.title,
+                          description: book.description,
+                          imageUrl: book.preview,
+                          price: book.price,
+                        );
+                      },
+                      childCount:
+                          snapshot.hasData && snapshot.data.books != null
+                              ? snapshot.data.books.length
+                              : 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
         });
-
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: CustomScrollView(
-            controller: _controller,
-            physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            slivers: [
-              cupertino.CupertinoSliverRefreshControl(
-                onRefresh: () async {
-                  if(!snapshot.hasData || !snapshot.data.isLoadingBooks)  {
-                    print('Aaaaaaaa - ${snapshot.data.isLoadingBooks}');
-
-                    //widget._bloc.sink.add(RefreshEvent());
-                  }
-                  await widget._bloc.uiDataObservable.firstWhere((data) => !data.isLoadingBooks);
-                },
-              ),
-
-              SliverSafeArea(
-                top: false,
-                sliver: SliverList(
-                         delegate: SliverChildBuilderDelegate(
-                               (context, index) {
-                             var book = snapshot.data.books[index];
-                             return BookItem(
-                               title: book.title,
-                               description: book.description,
-                               imageUrl: book.preview,
-                               price: book.price,
-                             );
-                           },
-                           childCount: snapshot.hasData && snapshot.data.books != null ? snapshot.data.books.length : 0,
-                         ),
-                       ),
-              ),
-            ],
-          ),
-        );
-      }
-    );
   }
 
   @override
@@ -229,7 +228,7 @@ class BookItem extends StatelessWidget {
     int imageWeight;
     int contentWeight;
 
-    if(MediaQuery.of(context).orientation == Orientation.portrait) {
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
       height = MediaQuery.of(context).size.height / 3;
       width = MediaQuery.of(context).size.width / 3;
       imageWeight = 5;
@@ -265,7 +264,6 @@ class BookItem extends StatelessWidget {
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                   child: Image.network(
                     imageUrl,
-
                   ),
                 )),
           ),
@@ -285,7 +283,8 @@ class BookItem extends StatelessWidget {
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Flexible(
@@ -311,13 +310,23 @@ class BookItem extends StatelessWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('$price \u{20BD}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),),
+                            Text(
+                              '$price \u{20BD}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16.0),
+                            ),
                           ],
                         ),
                         RaisedButton(
                           child: Text(local.ru['more_info']),
                           onPressed: () {
                             print('Подробнее');
+                            Navigator.of(context).pushNamed(
+                                BookDetailedScreen.routeName,
+                                arguments: BookArgument(
+                                    price: price,
+                                    imageUrl: imageUrl,
+                                    description: description));
                           },
                         ),
                       ],
@@ -332,4 +341,3 @@ class BookItem extends StatelessWidget {
     );
   }
 }
-

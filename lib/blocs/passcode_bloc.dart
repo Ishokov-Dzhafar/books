@@ -16,9 +16,9 @@ class PasscodeBloc extends BlocBase<PasscodeEvent> {
   Stream<void> get successCreatePasscode => _successCreatePasscode;
 
   PasscodeUIData _uiData;
-  var _profileRepository = PasscodeRepository();
+  PasscodeRepository _profileRepository;
 
-  PasscodeBloc() {
+  PasscodeBloc(this._profileRepository) {
     _uiData = PasscodeUIData();
 
     var initPasscodeData = events

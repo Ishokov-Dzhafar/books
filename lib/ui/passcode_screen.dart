@@ -1,3 +1,5 @@
+import 'package:books/data/storage/storage_provider.dart';
+import 'package:books/repositories/profile/passcode_repository.dart';
 import 'package:flutter/material.dart';
 import 'components/numeric_keyboard.dart';
 import 'components/passcode_indicator.dart';
@@ -8,19 +10,26 @@ class PasscodeScreen extends StatefulWidget {
   ///Route name for Navigator
   static const String routeName = '/quickAccessPassword';
 
+  PasscodeBloc _bloc;
+
+  //TODO не хватило времени на подбор инструмента для DI, но я бы попробовал https://github.com/google/inject.dart
+  PasscodeScreen() {
+    _bloc = PasscodeBloc(PasscodeRepository(StorageProvider().storage));
+  }
+
+
   @override
   _PasscodeScreenState createState() => _PasscodeScreenState();
 }
 
 class _PasscodeScreenState extends State<PasscodeScreen> {
-  PasscodeBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _bloc = PasscodeBloc();
 
-    _bloc.successCreatePasscode.listen((_) {
+
+    widget._bloc.successCreatePasscode.listen((_) {
       ///Navigate to Books Catalog and remove backstack pages
       Navigator.of(context).pushNamedAndRemoveUntil(BooksCatalogScreen.routeName, (_) => false);
     });
@@ -30,7 +39,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<PasscodeUIData>(
-          stream: _bloc.passcode,
+          stream: widget._bloc.passcode,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               var uiData = snapshot.data;
@@ -56,7 +65,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                       ),
                       NumericKeyboard(
                         onPressedBtn: (symbol) {
-                          _bloc.sink.add(NumberPressedEvent(symbol));
+                          widget._bloc.sink.add(NumberPressedEvent(symbol));
                         },
                         symbols: uiData.keyboardSymbols,
                       ),
@@ -91,7 +100,7 @@ class _PasscodeScreenState extends State<PasscodeScreen> {
                       alignment: Alignment.center,
                       child: NumericKeyboard(
                         onPressedBtn: (symbol) {
-                          _bloc.sink.add(NumberPressedEvent(symbol));
+                          widget._bloc.sink.add(NumberPressedEvent(symbol));
                         },
                         symbols: uiData.keyboardSymbols,
                       ),
